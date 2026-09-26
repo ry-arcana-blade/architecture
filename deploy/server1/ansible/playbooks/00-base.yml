@@ -1,0 +1,44 @@
+---
+- name: Establish server1 base host
+  hosts: server1
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Require server1 hostname
+      ansible.builtin.assert:
+        that:
+          - ansible_hostname == 'server1'
+        fail_msg: 'Refusing to configure a host whose hostname is not server1.'
+
+  tasks:
+    - name: Install base recovery and administration packages
+      ansible.builtin.apt:
+        update_cache: true
+        name:
+          - ca-certificates
+          - curl
+          - git
+          - jq
+          - rsync
+          - openssh-server
+          - lm-sensors
+          - python3-venv
+          - build-essential
+          - ccache
+          - cmake
+          - ninja-build
+          - pkg-config
+          - libssl-dev
+        state: present
+
+    - name: Create planned storage mount roots
+      ansible.builtin.file:
+        path: '{{ item }}'
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      loop:
+        - /srv/fast
+        - /srv/durable
