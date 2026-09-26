@@ -110,6 +110,18 @@ When the source head is frozen for final CI/external validation, use the reposit
 
 ---
 
+## 4.1 Self-Hosted CI
+
+Arcana Web's reviewed self-hosted broad-validation path is documented in:
+
+`docs/SELF-HOSTED-CI.md`
+
+When that fixed path is available, use its exact-revision GitHub status `arcana/self-hosted-validation` as the normal broad-CI evidence for Arcana Web development. A successful status belongs only to the exact commit on which it was published; any new commit requires fresh self-hosted validation. Focused tests, staging update/test, persistent evaluation when applicable, staging reset, review, mergeability, and campaign authority remain separate lifecycle gates.
+
+The self-hosted executor is shared infrastructure owned by the Secure Agent Gateway workstream. Consuming its fixed Arcana validation result is Arcana Web work; changing the executor, coordinator, helper, credentials, service units, or host configuration remains Gateway/infrastructure work unless the user explicitly transfers that task.
+
+---
+
 ## 5. Primary Workstream Ownership
 
 The Arcana Web Project owns work involving the Arcana Blade application, including:
