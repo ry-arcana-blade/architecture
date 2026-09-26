@@ -135,6 +135,10 @@ Use this pattern when the operation would otherwise require large embedded Pytho
 
 The launcher should be intentionally small enough to be reliable when the user opens the file, Select All / Copy, and pastes it into the existing SSH Bash prompt.
 
+As an operational size rule, target roughly **3 KiB or less** for copy/paste launchers whenever practical. Treat launchers above **4 KiB** as requiring further simplification unless there is a documented reason they cannot be reduced. Prefer moving additional verification or execution logic into the reviewed repository-owned transaction rather than increasing the pasted wrapper.
+
+A launcher that arrives only partially at the SSH prompt is not considered executed, even if later fragments print apparent PASS text. When a transcript does not begin with the launcher's START banner and opening guards, treat all downstream success text as invalid and perform a fresh-session read-only prestate audit before retrying any mutation.
+
 ### 4.2 Primary-prompt prerequisite
 
 Before asking the user to paste a shell launcher, require that the terminal is at the normal Bash **primary prompt** (for example, a prompt ending in `# ChatGPT Operating Instructions
