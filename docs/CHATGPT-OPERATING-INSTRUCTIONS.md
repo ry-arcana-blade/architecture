@@ -95,19 +95,151 @@ Do not call a script copy/paste-safe merely because it parses successfully.
 
 Before delivering any substantial `.sh`:
 
-1. Run `bash -n`.
-2. Check for unmatched quotes.
-3. Check for malformed heredocs.
-4. Check for broken line continuations.
-5. Check for incomplete shell constructs.
-6. Confirm dangerous shell state exists only inside the isolated subshell.
-7. Simulate pasting the exact full file into an interactive Bash parent shell.
-8. Deliberately exercise at least one failure path.
-9. Verify the END banner prints on failure.
-10. Run another command in the same simulated parent shell after the script ends.
-11. Verify that command succeeds, proving the parent interactive shell remains usable.
+1. Run `bash -n` against the **actual file written to disk**, not only an in-memory source string.
+2. Read that generated file back and verify it is byte-for-byte the intended content.
+3. Check for unmatched quotes.
+4. Check for malformed heredocs.
+5. Check for broken line continuations.
+6. Check for incomplete shell constructs.
+7. Confirm dangerous shell state exists only inside the isolated subshell.
+8. Simulate pasting the **exact full generated file read back from disk** into an interactive Bash parent shell.
+9. Deliberately exercise at least one failure path.
+10. Verify the END banner prints on failure.
+11. Run another command in the same simulated parent shell after the script ends.
+12. Verify that command succeeds, proving the parent interactive shell remains usable.
+13. Verify the complete paste returns Bash to its primary prompt rather than leaving it at a continuation prompt such as `>`.
 
 Parsing alone is not sufficient evidence of paste safety.
+
+### 4.1 Paste-safe launcher pattern
+
+For nontrivial diagnostics, deployment transactions, or administrative logic, prefer a **small copy/paste launcher plus repository-owned reviewed implementation** rather than embedding the full implementation in the downloadable shell file.
+
+Use this pattern when the operation would otherwise require large embedded Python, nested heredocs, long here-doc bodies, large quoted payloads, generated source code, or other complex multiline shell parsing:
+
+1. Put the complex implementation in the appropriate reviewed Git repository.
+2. Add focused tests for that implementation.
+3. Require the implementation's exact repository head to pass its normal CI gates before host execution.
+4. Make the downloadable `.sh` only a compact launcher that:
+   - prints the normal START banner;
+   - enters the isolated subshell;
+   - validates hostname/user and required tools;
+   - verifies the exact reviewed branch/head;
+   - materializes only the reviewed implementation;
+   - verifies its exact Git blob/hash;
+   - syntax-checks or otherwise validates the materialized implementation when applicable;
+   - executes it with the fixed reviewed runtime/environment;
+   - prints final status and the END banner.
+5. Do not embed a second large program inside the copy/paste launcher merely to avoid adding a reviewed repository file.
+6. Avoid heredocs and embedded language payloads in the downloadable launcher when the same logic can live in the reviewed repository.
+
+The launcher should be intentionally small enough to be reliable when the user opens the file, Select All / Copy, and pastes it into the existing SSH Bash prompt.
+
+### 4.2 Primary-prompt prerequisite
+
+Before asking the user to paste a shell launcher, require that the terminal is at the normal Bash **primary prompt** (for example, a prompt ending in `# ChatGPT Operating Instructions
+
+**Status:** AUTHORITATIVE  
+**Repository:** `ry-arcana-blade/architecture`  
+**Branch:** `main`  
+**Path:** `docs/CHATGPT-OPERATING-INSTRUCTIONS.md`
+
+## Purpose
+
+These instructions govern ChatGPT-assisted shell, deployment, diagnostic, test, security, restart, administrative, infrastructure, and related technical work across Arcana Blade, Arcana MCP / Secure Agent Gateway, Crochet Design Lab, Architecture, operations dashboard work, kiosk administration, and related current or future projects.
+
+When this document is available, treat it as the authoritative source of truth for the operating rules described here. Do not silently substitute remembered, stale, or inferred procedures for the current contents of this file.
+
+If a user instruction in the current conversation explicitly overrides a rule in this document, follow the user's explicit instruction for that task unless doing so would violate a higher-priority safety or platform requirement.
+
+---
+
+## 1. Persistent Machine Identity Registry
+
+Always make the target machine unmistakable.
+
+Persistent machine/color mappings:
+
+- 🟦 `server0`
+- 🟩 `ubuntu-cpu-llm`
+- 🟧 `monitoring-kiosk`
+- 🟪 `EVO-X2`
+
+Never swap these mappings.
+
+Assign a new persistent color to every new server or managed host. Once assigned, keep that mapping stable in later work.
+
+Use the matching color consistently in headings, run-target labels, banners, and execution instructions.
+
+---
+
+## 2. Command Delivery
+
+Prefer MCP/connectors and fixed read-only automation when practical.
+
+Any delivered file containing shell commands must be a downloadable `.sh` file, never a `.txt` file.
+
+The normal workflow is:
+
+1. Open the `.sh`.
+2. Select All / Copy.
+3. Paste the entire contents directly into an existing interactive SSH Bash prompt.
+
+Design every substantial `.sh` for that workflow unless the user explicitly requests otherwise.
+
+Before each file link, show the target and classification, for example:
+
+- 🟦 RUN ON: `server0` — READ-ONLY
+- 🟩 RUN ON: `ubuntu-cpu-llm` — MODIFIES CONFIGURATION
+- 🟧 RUN ON: `monitoring-kiosk` — RESTARTS SERVICE
+- 🟪 RUN ON: `EVO-X2` — DEPLOYS CODE
+
+Never make the user infer which machine should receive a command.
+
+---
+
+## 3. Copy/Paste Safety
+
+For substantial shell work:
+
+1. Print the START banner at top level.
+2. Put all operational logic inside a parenthesized subshell: `(...)`.
+3. Keep strict mode, variables, functions, traps, `cd`, hostname guards, sudo handling, loops, conditions, pipelines, and every `exit` inside that subshell.
+4. Use an `EXIT` trap inside the subshell to print final status and the END banner.
+
+At the parent interactive-shell level, never use:
+
+- `exit`
+- `logout`
+- `return`
+- `exec`
+- traps
+- `cd`
+- persistent variable definitions
+- persistent function definitions
+- `set -e`
+- `set -u`
+- `set -o pipefail`
+- `set -euo pipefail`
+
+A failure must terminate only the isolated subshell, never the user's SSH session.
+
+Never append a top-level `exit $?` after the closing `)`.
+
+Do not call a script copy/paste-safe merely because it parses successfully.
+
+---
+
+), not the secondary continuation prompt `>`.
+
+If a previous paste left Bash at `>`:
+
+1. Do not paste a new launcher into that continuation context.
+2. Press `Ctrl+C` once to cancel the incomplete construct.
+3. Confirm the normal primary prompt has returned.
+4. Only then paste the next complete launcher.
+
+A new script pasted at a `>` prompt is parsed as part of the unfinished previous construct and must not be treated as having executed, even if its text appears in the terminal transcript.
 
 ---
 
