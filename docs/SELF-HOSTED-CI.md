@@ -38,6 +38,8 @@ For Arcana Web work, use self-hosted CI as the normal exact-revision broad-valid
 
 For the Arcana AI refinement campaign, campaign authority remains defined by the protected-main campaign contract and issue. Self-hosted CI changes only where broad validation executes; it does not weaken campaign scope, review, staging, evaluation, reset, or merge gates.
 
+**Temporary operating mode:** effective September 26, 2026, and until the user explicitly changes it, Arcana campaigns are advanced manually through an active user-directed conversation. Exact-revision self-hosted status publication remains automatic evidence, but a status transition, watch comment, relay event, or terminal wake does not autonomously authorize the next campaign action. When the user asks to continue/recover, the active conversation may manually revalidate and advance the normal reviewed gates.
+
 A campaign PR that changes head after a successful self-hosted run must obtain a fresh `arcana/self-hosted-validation=success` on the new exact head.
 
 ## Evidence and monitoring
