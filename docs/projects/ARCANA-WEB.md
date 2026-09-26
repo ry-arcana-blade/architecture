@@ -279,7 +279,21 @@ If completing the task truly requires transferring ownership into another Projec
 
 ## 12. Orchestration and Wake Dependencies
 
-Event-driven orchestration and wake infrastructure may participate in the Arcana Web development lifecycle.
+### Temporary manual campaign execution override
+
+Effective September 26, 2026, and until the user explicitly rescinds this override, Arcana Web AI-refinement campaigns are run **manually through an active user-directed conversation**.
+
+While this override is active:
+
+- event-driven wake/resume infrastructure may remain deployed and may still emit bounded signals, but those signals are evidence only and must not autonomously advance the campaign;
+- a terminal CI/Gateway/wake event must not by itself authorize another campaign gate, merge a campaign PR, or start the next campaign PR;
+- a user instruction such as `continue`, `resume`, or `recover and continue` authorizes the active conversation to recover durable state and manually advance the ordinary reviewed gates for that session;
+- that conversational authority does not persist after the active session stops and must not be reconstructed from an unattended wake event alone;
+- fixed self-hosted CI, staging update/test, persistent evaluation, staging reset, exact-revision checks, branch protection, review/readiness checks, and fail-closed recovery rules remain unchanged;
+- canonical `gateway_job_watch` comments may still be written as durable audit/recovery evidence, but campaign progress must not depend on an automatic terminal wake;
+- do not disable, redesign, or repurpose orchestration infrastructure merely because manual campaign mode is active. Orchestration changes remain MCP/infrastructure work unless the user explicitly transfers that task.
+
+Event-driven orchestration and wake infrastructure may otherwise participate in the Arcana Web development lifecycle as dependency/diagnostic context.
 
 When inspecting it from this Project:
 
